@@ -1,10 +1,11 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM = 'NutmegLocal <onboarding@resend.dev>';
 const ADMIN_EMAIL = 'xavisolis@proton.me';
 
 export async function sendWelcomeEmail(to: string, businessName: string) {
+  if (!resend) return { data: null, error: 'Resend not configured' };
   return resend.emails.send({
     from: FROM,
     to,
@@ -31,6 +32,7 @@ export async function sendWelcomeEmail(to: string, businessName: string) {
 }
 
 export async function sendClaimNotification(businessName: string, claimerEmail: string, proof: string) {
+  if (!resend) return { data: null, error: 'Resend not configured' };
   return resend.emails.send({
     from: FROM,
     to: ADMIN_EMAIL,
@@ -49,6 +51,7 @@ export async function sendClaimNotification(businessName: string, claimerEmail: 
 }
 
 export async function sendEarlyAccessConfirmation(to: string, type: string) {
+  if (!resend) return { data: null, error: 'Resend not configured' };
   return resend.emails.send({
     from: FROM,
     to,

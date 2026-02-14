@@ -1,17 +1,22 @@
 import Link from 'next/link';
-import { Leaf, MapPin, Store, Shield, Search } from 'lucide-react';
+import {
+  Leaf, MapPin, Store, Shield, Search,
+  UtensilsCrossed, Wrench, HeartPulse, Car,
+  ShoppingBag, Briefcase, Scissors, Dumbbell,
+  type LucideIcon,
+} from 'lucide-react';
 import { EarlyAccessForm } from '@/components/landing/early-access-form';
 import { Button } from '@/components/ui/button';
 
-const previewCategories = [
-  { name: 'Restaurants', icon: '🍽️' },
-  { name: 'Home Services', icon: '🔧' },
-  { name: 'Health & Wellness', icon: '💆' },
-  { name: 'Auto Services', icon: '🚗' },
-  { name: 'Retail & Shopping', icon: '🛍️' },
-  { name: 'Professional Services', icon: '💼' },
-  { name: 'Beauty & Spas', icon: '💅' },
-  { name: 'Fitness', icon: '🏋️' },
+const previewCategories: { name: string; icon: LucideIcon }[] = [
+  { name: 'Restaurants', icon: UtensilsCrossed },
+  { name: 'Home Services', icon: Wrench },
+  { name: 'Health & Wellness', icon: HeartPulse },
+  { name: 'Auto Services', icon: Car },
+  { name: 'Retail & Shopping', icon: ShoppingBag },
+  { name: 'Professional Services', icon: Briefcase },
+  { name: 'Beauty & Spas', icon: Scissors },
+  { name: 'Fitness', icon: Dumbbell },
 ];
 
 const popularSearches = ['Restaurants', 'Home Services', 'Hair Salons', 'Auto Repair'];
@@ -108,9 +113,11 @@ export default function HomePage() {
             {previewCategories.map((cat) => (
               <div
                 key={cat.name}
-                className="rounded-xl border bg-card p-4 hover:border-primary/50 transition-colors"
+                className="rounded-xl border bg-card p-5 hover:border-primary/50 transition-colors"
               >
-                <div className="text-3xl mb-2">{cat.icon}</div>
+                <div className="mx-auto w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                  <cat.icon className="h-5 w-5 text-primary" />
+                </div>
                 <p className="text-sm font-medium">{cat.name}</p>
               </div>
             ))}

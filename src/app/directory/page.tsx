@@ -2,8 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { SearchFilters } from '@/components/directory/search-filters';
-import { BusinessCard } from '@/components/directory/business-card';
-import { MapView } from '@/components/directory/map-view';
+import { DirectoryContent } from '@/components/directory/directory-content';
 import type { Business, Category } from '@/types';
 
 export const metadata: Metadata = {
@@ -19,13 +18,11 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const supabase = await createClient();
 
-  // Fetch categories
   const { data: categories } = await supabase
     .from('categories')
     .select('*')
     .order('name');
 
-  // Build business query
   let query = supabase
     .from('businesses')
     .select('*, category:categories(*)')
@@ -59,23 +56,7 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
         />
       </Suspense>
 
-      <div className="mt-8 grid lg:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          {businesses && businesses.length > 0 ? (
-            businesses.map((biz: Business) => (
-              <BusinessCard key={biz.id} business={biz} />
-            ))
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              <p className="text-lg">No businesses found</p>
-              <p className="text-sm">Try adjusting your search or filters</p>
-            </div>
-          )}
-        </div>
-        <div className="hidden lg:block sticky top-20 h-[calc(100vh-8rem)]">
-          <MapView businesses={businesses || []} />
-        </div>
-      </div>
+      <DirectoryContent businesses={businesses || []} />
     </div>
   );
 }

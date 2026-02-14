@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Eye, Upload, X, Image as ImageIcon } from 'lucide-react';
 import type { Business, Claim } from '@/types';
 
 export default function DashboardPage() {
@@ -21,6 +22,8 @@ export default function DashboardPage() {
   const [editing, setEditing] = useState<Business | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -56,6 +59,7 @@ export default function DashboardPage() {
     await supabase
       .from('businesses')
       .update({
+        name: editing.name,
         description: editing.description,
         phone: editing.phone,
         email: editing.email,
@@ -66,6 +70,41 @@ export default function DashboardPage() {
     setBusinesses(businesses.map((b) => (b.id === editing.id ? editing : b)));
     setEditing(null);
     setSaving(false);
+  }
+
+  async function handlePhotoUpload(file: File) {
+    if (!editing) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('business_id', editing.id);
+
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    if (res.ok) {
+      const { photos } = await res.json();
+      const updated = { ...editing, photos };
+      setEditing(updated);
+      setBusinesses(businesses.map((b) => (b.id === editing.id ? updated : b)));
+    }
+    setUploading(false);
+  }
+
+  function removePhoto(url: string) {
+    if (!editing) return;
+    const photos = (editing.photos || []).filter((p) => p !== url);
+    const updated = { ...editing, photos };
+    setEditing(updated);
+    // Save immediately
+    supabase.from('businesses').update({ photos }).eq('id', editing.id);
+    setBusinesses(businesses.map((b) => (b.id === editing.id ? updated : b)));
+  }
+
+  function updateHours(day: string, value: string) {
+    if (!editing) return;
+    setEditing({
+      ...editing,
+      hours: { ...(editing.hours || {}), [day]: value },
+    });
   }
 
   async function handleSignOut() {
@@ -100,12 +139,24 @@ export default function DashboardPage() {
               <Card key={biz.id}>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    {biz.name}
-                    <Button variant="outline" size="sm" onClick={() => setEditing(biz)}>Edit</Button>
+                    <span>{biz.name}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-normal text-muted-foreground flex items-center gap-1">
+                        <Eye className="h-4 w-4" /> {biz.view_count || 0} views
+                      </span>
+                      <Button variant="outline" size="sm" onClick={() => setEditing(biz)}>Edit</Button>
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground">
                   {biz.address}, {biz.city} · {biz.phone || 'No phone'}
+                  {biz.photos && biz.photos.length > 0 && (
+                    <div className="flex gap-2 mt-3 overflow-x-auto">
+                      {biz.photos.map((url, i) => (
+                        <img key={i} src={url} alt="" className="h-16 w-16 rounded object-cover shrink-0" />
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))
@@ -152,6 +203,10 @@ export default function DashboardPage() {
             <CardContent>
               <form onSubmit={handleSave} className="space-y-4">
                 <div>
+                  <Label>Business Name</Label>
+                  <Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
+                </div>
+                <div>
                   <Label>Description</Label>
                   <Textarea
                     value={editing.description || ''}
@@ -159,18 +214,77 @@ export default function DashboardPage() {
                     rows={3}
                   />
                 </div>
-                <div>
-                  <Label>Phone</Label>
-                  <Input value={editing.phone || ''} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Email</Label>
-                  <Input value={editing.email || ''} onChange={(e) => setEditing({ ...editing, email: e.target.value })} />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Phone</Label>
+                    <Input value={editing.phone || ''} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Email</Label>
+                    <Input value={editing.email || ''} onChange={(e) => setEditing({ ...editing, email: e.target.value })} />
+                  </div>
                 </div>
                 <div>
                   <Label>Website</Label>
                   <Input value={editing.website || ''} onChange={(e) => setEditing({ ...editing, website: e.target.value })} />
                 </div>
+
+                {/* Hours */}
+                <div>
+                  <Label>Business Hours</Label>
+                  <div className="space-y-2 mt-1">
+                    {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((day) => (
+                      <div key={day} className="flex items-center gap-2">
+                        <span className="w-12 text-sm font-medium capitalize">{day}</span>
+                        <Input
+                          placeholder="e.g. 9:00 AM - 5:00 PM"
+                          value={editing.hours?.[day] || ''}
+                          onChange={(e) => updateHours(day, e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Photos */}
+                <div>
+                  <Label>Photos</Label>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {(editing.photos || []).map((url, i) => (
+                      <div key={i} className="relative group">
+                        <img src={url} alt="" className="h-20 w-20 rounded object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(url)}
+                          className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      disabled={uploading}
+                      className="h-20 w-20 rounded border-2 border-dashed flex items-center justify-center text-muted-foreground hover:border-primary/50 transition-colors"
+                    >
+                      {uploading ? '...' : <ImageIcon className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handlePhotoUpload(file);
+                      e.target.value = '';
+                    }}
+                  />
+                </div>
+
                 <div className="flex gap-2">
                   <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
                   <Button type="button" variant="outline" onClick={() => setEditing(null)}>Cancel</Button>

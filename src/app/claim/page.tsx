@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,14 @@ import type { Business } from '@/types';
 type Step = 'search' | 'auth' | 'verify' | 'done';
 
 export default function ClaimPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8 max-w-lg"><p>Loading...</p></div>}>
+      <ClaimPageInner />
+    </Suspense>
+  );
+}
+
+function ClaimPageInner() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>('search');
   const [query, setQuery] = useState('');

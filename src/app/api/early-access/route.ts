@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { sendEarlyAccessConfirmation } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,6 +23,9 @@ export async function POST(request: NextRequest) {
       }
       throw error;
     }
+
+    // Send confirmation email (fire-and-forget)
+    sendEarlyAccessConfirmation(email, type).catch(console.error);
 
     return NextResponse.json({ success: true });
   } catch (err: any) {

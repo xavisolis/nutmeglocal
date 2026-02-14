@@ -29,6 +29,7 @@ export interface Business {
   featured: boolean;
   active: boolean;
   created_at: string;
+  view_count: number;
   updated_at: string;
   category?: Category;
 }

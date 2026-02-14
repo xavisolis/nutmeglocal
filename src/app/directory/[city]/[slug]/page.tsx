@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { DAY_ORDER, DAY_LABELS, SITE_NAME } from '@/lib/constants';
 import { BusinessPageTracker } from './tracker';
+import { MiniMap } from '@/components/directory/mini-map';
 import type { Business } from '@/types';
 
 interface PageProps {
@@ -35,26 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: business.description || `${business.name} in ${business.city}, CT`,
     },
     other: {
-      'script:ld+json': JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'LocalBusiness',
-        name: business.name,
-        description: business.description,
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: business.address,
-          addressLocality: business.city,
-          addressRegion: business.state,
-          postalCode: business.zip,
-        },
-        telephone: business.phone,
-        url: business.website,
-        geo: {
-          '@type': 'GeoCoordinates',
-          latitude: business.latitude,
-          longitude: business.longitude,
-        },
-      }),
+      'geo.position': `${business.latitude};${business.longitude}`,
     },
   };
 }
@@ -74,8 +56,33 @@ export default async function BusinessPage({ params }: PageProps) {
 
   const biz = business as Business;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: biz.name,
+    description: biz.description,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: biz.address,
+      addressLocality: biz.city,
+      addressRegion: biz.state,
+      postalCode: biz.zip,
+    },
+    telephone: biz.phone,
+    url: biz.website,
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: biz.latitude,
+      longitude: biz.longitude,
+    },
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <BusinessPageTracker businessId={biz.id} businessName={biz.name} />
 
       {/* Breadcrumb */}
@@ -175,6 +182,8 @@ export default async function BusinessPage({ params }: PageProps) {
               )}
             </CardContent>
           </Card>
+
+          <MiniMap latitude={biz.latitude} longitude={biz.longitude} name={biz.name} />
         </div>
       </div>
     </div>

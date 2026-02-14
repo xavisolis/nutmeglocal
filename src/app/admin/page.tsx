@@ -5,12 +5,15 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Star, Eye, EyeOff, Pencil } from 'lucide-react';
 import type { Business, Claim, EarlyAccess } from '@/types';
 
-const ADMIN_EMAILS = ['jaimesolisa@gmail.com']; // Configure admin emails
+const ADMIN_EMAILS = ['jaimesolisa@gmail.com'];
 
 export default function AdminPage() {
   const router = useRouter();
@@ -20,6 +23,8 @@ export default function AdminPage() {
   const [claims, setClaims] = useState<Claim[]>([]);
   const [signups, setSignups] = useState<EarlyAccess[]>([]);
   const [search, setSearch] = useState('');
+  const [editing, setEditing] = useState<Business | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -45,14 +50,40 @@ export default function AdminPage() {
 
   async function handleClaimAction(claimId: string, businessId: string, userId: string, action: 'approved' | 'rejected') {
     await supabase.from('claims').update({ status: action, reviewed_at: new Date().toISOString() }).eq('id', claimId);
-
     if (action === 'approved') {
       await supabase.from('businesses').update({ claimed: true, claimed_by: userId }).eq('id', businessId);
     }
-
     setClaims(claims.map((c) =>
       c.id === claimId ? { ...c, status: action, reviewed_at: new Date().toISOString() } : c
     ));
+  }
+
+  async function toggleFeatured(biz: Business) {
+    const featured = !biz.featured;
+    await supabase.from('businesses').update({ featured }).eq('id', biz.id);
+    setBusinesses(businesses.map((b) => b.id === biz.id ? { ...b, featured } : b));
+  }
+
+  async function toggleActive(biz: Business) {
+    const active = !biz.active;
+    await supabase.from('businesses').update({ active }).eq('id', biz.id);
+    setBusinesses(businesses.map((b) => b.id === biz.id ? { ...b, active } : b));
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editing) return;
+    setSaving(true);
+    await supabase.from('businesses').update({
+      name: editing.name,
+      description: editing.description,
+      phone: editing.phone,
+      email: editing.email,
+      website: editing.website,
+    }).eq('id', editing.id);
+    setBusinesses(businesses.map((b) => b.id === editing.id ? { ...b, ...editing } : b));
+    setEditing(null);
+    setSaving(false);
   }
 
   const filteredBusinesses = businesses.filter((b) =>
@@ -76,15 +107,42 @@ export default function AdminPage() {
           <Input placeholder="Search businesses..." value={search} onChange={(e) => setSearch(e.target.value)} />
           <div className="space-y-2">
             {filteredBusinesses.map((biz) => (
-              <Card key={biz.id}>
+              <Card key={biz.id} className={!biz.active ? 'opacity-50' : ''}>
                 <CardContent className="p-4 flex items-center justify-between">
                   <div>
                     <p className="font-medium">{biz.name}</p>
-                    <p className="text-sm text-muted-foreground">{biz.city} · {biz.category?.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {biz.city} · {biz.category?.name} · {biz.view_count || 0} views
+                    </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     {biz.claimed && <Badge>Claimed</Badge>}
-                    {biz.featured && <Badge variant="secondary">Featured</Badge>}
+                    <Button
+                      variant={biz.featured ? 'default' : 'outline'}
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => toggleFeatured(biz)}
+                      title={biz.featured ? 'Remove featured' : 'Make featured'}
+                    >
+                      <Star className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={biz.active ? 'outline' : 'destructive'}
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => toggleActive(biz)}
+                      title={biz.active ? 'Deactivate' : 'Activate'}
+                    >
+                      {biz.active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setEditing(biz)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -143,6 +201,47 @@ export default function AdminPage() {
           ))}
         </TabsContent>
       </Tabs>
+
+      {/* Edit Dialog */}
+      {editing && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-lg">
+            <CardHeader>
+              <CardTitle>Edit {editing.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSave} className="space-y-4">
+                <div>
+                  <Label>Name</Label>
+                  <Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Description</Label>
+                  <Textarea value={editing.description || ''} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={3} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Phone</Label>
+                    <Input value={editing.phone || ''} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Email</Label>
+                    <Input value={editing.email || ''} onChange={(e) => setEditing({ ...editing, email: e.target.value })} />
+                  </div>
+                </div>
+                <div>
+                  <Label>Website</Label>
+                  <Input value={editing.website || ''} onChange={(e) => setEditing({ ...editing, website: e.target.value })} />
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
+                  <Button type="button" variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

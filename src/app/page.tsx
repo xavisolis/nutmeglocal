@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import { Leaf, MapPin, Store, Shield, Search } from 'lucide-react';
 import { EarlyAccessForm } from '@/components/landing/early-access-form';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 const previewCategories = [
   { name: 'Restaurants', icon: '🍽️' },
@@ -13,34 +14,48 @@ const previewCategories = [
   { name: 'Fitness', icon: '🏋️' },
 ];
 
+const popularSearches = ['Restaurants', 'Home Services', 'Hair Salons', 'Auto Repair'];
+
 export default function HomePage() {
   return (
     <div>
-      {/* Hero */}
-      <section className="relative py-20 md:py-32 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <Badge variant="secondary" className="mb-4">
-                <Leaf className="h-3 w-3 mr-1" /> Coming Soon — Greater Danbury, CT
-              </Badge>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-                Discover Local Businesses in{' '}
-                <span className="text-primary">Greater Danbury</span>
-              </h1>
-              <p className="text-lg text-muted-foreground mb-8 max-w-lg">
-                NutmegLocal is a free directory connecting you with trusted local businesses 
-                in Danbury, Bethel, Brookfield, Ridgefield, and surrounding towns.
-              </p>
-              <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1"><Search className="h-4 w-4" /> Search local</span>
-                <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> Find nearby</span>
-                <span className="flex items-center gap-1"><Shield className="h-4 w-4" /> Free forever</span>
-              </div>
-            </div>
-            <div>
-              <EarlyAccessForm />
-            </div>
+      {/* Hero — search bar IS the product */}
+      <section className="py-16 md:py-28 px-4">
+        <div className="container mx-auto max-w-3xl text-center">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
+            Find local businesses in Greater Danbury
+          </h1>
+          <p className="text-muted-foreground mb-10 max-w-xl mx-auto">
+            Your free directory for Danbury, Bethel, Brookfield, Ridgefield, and 5 more towns.
+          </p>
+
+          {/* Search bar */}
+          <form action="/directory" className="relative max-w-2xl mx-auto mb-8">
+            <label htmlFor="hero-search" className="sr-only">Search businesses</label>
+            <Search className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+            <input
+              id="hero-search"
+              name="q"
+              type="text"
+              placeholder="Try 'plumber in Bethel' or 'Italian restaurant'..."
+              className="w-full h-14 pl-12 md:pl-14 pr-28 md:pr-32 rounded-full border-2 border-border bg-card text-base md:text-lg shadow-lg shadow-black/5 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/60"
+            />
+            <Button type="submit" className="absolute right-1.5 md:right-2 top-1/2 -translate-y-1/2 rounded-full h-10 px-5 md:px-6">
+              Search
+            </Button>
+          </form>
+
+          {/* Popular categories as chips */}
+          <div className="flex flex-wrap justify-center gap-2">
+            {popularSearches.map((term) => (
+              <Link
+                key={term}
+                href={`/directory?q=${encodeURIComponent(term)}`}
+                className="rounded-full border px-3 py-1 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+              >
+                {term}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -100,6 +115,13 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Early Access */}
+      <section className="py-16 px-4 bg-muted/30">
+        <div className="container mx-auto max-w-md">
+          <EarlyAccessForm />
         </div>
       </section>
     </div>

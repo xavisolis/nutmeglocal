@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import type { Business } from '@/types';
 import { DANBURY_CENTER } from '@/lib/constants';
 
@@ -29,10 +30,13 @@ export function MapView({ businesses }: MapViewProps) {
       map.addControl(new mapboxgl.default.NavigationControl(), 'top-right');
 
       businesses.forEach((biz) => {
+        const citySlug = biz.city.toLowerCase().replace(/\s+/g, '-');
         const popup = new mapboxgl.default.Popup({ offset: 25 }).setHTML(
-          `<div class="p-1">
+          `<div class="p-2">
             <strong>${biz.name}</strong><br/>
-            <span class="text-xs">${biz.address}, ${biz.city}</span>
+            <span class="text-xs text-gray-600">${biz.category?.name || ''}</span><br/>
+            <span class="text-xs">${biz.address}, ${biz.city}</span><br/>
+            <a href="/directory/${citySlug}/${biz.slug}" class="text-xs text-blue-600 hover:underline font-medium">View Profile →</a>
           </div>`
         );
 

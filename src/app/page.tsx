@@ -136,12 +136,7 @@ export default function HomePage() {
       {/* Early Access */}
       <section className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-md">
-          <div className="rounded-2xl border bg-card p-1 shadow-sm">
-            <div className="h-1 w-full rounded-t-xl bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
-            <div className="p-5 pt-6">
-              <EarlyAccessForm />
-            </div>
-          </div>
+          <EarlyAccessForm />
         </div>
       </section>
     </div>

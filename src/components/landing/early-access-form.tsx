@@ -55,7 +55,7 @@ export function EarlyAccessForm() {
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-6 md:p-8 space-y-4">
       <div className="text-center mb-2">
-        <h3 className="text-xl font-semibold">Get Early Access</h3>
+        <h3 className="font-[family-name:var(--font-display)] text-2xl">Get Early Access</h3>
         <p className="text-sm text-muted-foreground">Be the first to know when we launch</p>
       </div>
 

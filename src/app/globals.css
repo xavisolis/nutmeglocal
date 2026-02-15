@@ -41,4 +41,5 @@
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
   --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: var(--font-display), 'Georgia', serif;
 }

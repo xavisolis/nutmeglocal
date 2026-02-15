@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, DM_Serif_Display } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/constants';
 
 const inter = Inter({ subsets: ['latin'] });
+const dmSerif = DM_Serif_Display({ weight: '400', subsets: ['latin'], variable: '--font-display' });
 
 export const metadata: Metadata = {
   title: {
@@ -44,7 +45,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="NutmegLocal" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${inter.className} ${dmSerif.variable} antialiased`}>
         <Providers>
           <div className="flex min-h-screen flex-col">
             <Header />

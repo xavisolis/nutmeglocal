@@ -34,11 +34,12 @@ export default function HomePage() {
           }}
         />
         <div className="container mx-auto max-w-3xl text-center relative z-10">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 text-balance">
-            Find local businesses in Greater Danbury
+          <p className="text-sm font-medium text-primary mb-4 tracking-wide uppercase">Greater Danbury Area</p>
+          <h1 className="font-[family-name:var(--font-display)] text-4xl md:text-5xl lg:text-6xl tracking-tight mb-5 text-balance">
+            Find local businesses you can trust
           </h1>
-          <p className="text-muted-foreground mb-10 max-w-xl mx-auto text-lg">
-            Your free directory for Danbury, Bethel, Brookfield, Ridgefield, and 5 more towns.
+          <p className="text-muted-foreground mb-10 max-w-lg mx-auto text-base md:text-lg leading-relaxed">
+            Your free directory for Danbury, Bethel, Brookfield, Ridgefield, New Fairfield, and more.
           </p>
 
           {/* Search bar */}
@@ -75,36 +76,36 @@ export default function HomePage() {
       {/* Why NutmegLocal */}
       <section className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold mb-4">Support Local. Shop Local.</h2>
-          <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Every dollar spent locally keeps our community thriving. NutmegLocal makes it easy 
+          <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-4">Support Local. Shop Local.</h2>
+          <p className="text-muted-foreground mb-14 max-w-2xl mx-auto leading-relaxed">
+            Every dollar spent locally keeps our community thriving. NutmegLocal makes it easy
             to find the businesses right in your backyard.
           </p>
-          <div className="grid sm:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-3 gap-10">
             <div className="space-y-3">
-              <div className="mx-auto w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Search className="h-6 w-6 text-primary" />
+              <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Search className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="font-semibold">Easy to Find</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold text-base">Easy to Find</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Search by name, category, or location. Find exactly what you need.
               </p>
             </div>
             <div className="space-y-3">
-              <div className="mx-auto w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Store className="h-6 w-6 text-primary" />
+              <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Store className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="font-semibold">Claim Your Business</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold text-base">Claim Your Business</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Business owners can claim and update their listing for free.
               </p>
             </div>
             <div className="space-y-3">
-              <div className="mx-auto w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <MapPin className="h-6 w-6 text-primary" />
+              <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <MapPin className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="font-semibold">Map & Directions</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold text-base">Map & Directions</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Interactive maps to help you find businesses near you.
               </p>
             </div>
@@ -115,7 +116,8 @@ export default function HomePage() {
       {/* Category Preview */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold mb-8">Browse by Category</h2>
+          <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-3">Browse by Category</h2>
+          <p className="text-muted-foreground mb-10">Explore businesses across Greater Danbury</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {previewCategories.map((cat) => (
               <Link

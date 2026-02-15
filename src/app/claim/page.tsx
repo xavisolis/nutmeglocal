@@ -151,15 +151,15 @@ function ClaimPageInner() {
               </Button>
             </form>
             {results.length > 0 && (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {results.map((biz) => (
                   <button
                     key={biz.id}
                     onClick={() => selectBusiness(biz)}
-                    className="w-full text-left p-3 rounded-lg border hover:border-primary/50 transition-colors"
+                    className="w-full text-left p-4 rounded-lg border hover:border-primary/50 hover:bg-muted/50 transition-colors active:scale-[0.98]"
                   >
                     <p className="font-medium">{biz.name}</p>
-                    <p className="text-sm text-muted-foreground">{biz.address}, {biz.city}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">{biz.address}, {biz.city}</p>
                   </button>
                 ))}
               </div>

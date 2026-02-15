@@ -41,19 +41,19 @@ export function SearchFilters({ categories, currentCategory, currentCity, curren
           placeholder="Search businesses..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full h-12 pl-11 pr-24 rounded-full border-2 border-border bg-card text-sm shadow-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/60"
+          className="w-full h-12 pl-11 pr-24 rounded-full border-2 border-border bg-card text-base md:text-sm shadow-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/60"
         />
-        <Button type="submit" size="sm" className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full px-5">
+        <Button type="submit" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full px-5 h-10 md:h-9 text-sm">
           Search
         </Button>
       </form>
 
-      {/* Category filters */}
-      <div className="flex flex-wrap gap-1.5">
+      {/* Category filters — horizontal scroll on mobile */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible">
         <button
           type="button"
           onClick={() => updateFilters({ q: currentQuery, city: currentCity })}
-          className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+          className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
             !currentCategory
               ? 'bg-primary text-primary-foreground'
               : 'bg-muted text-muted-foreground hover:text-foreground'
@@ -70,7 +70,7 @@ export function SearchFilters({ categories, currentCategory, currentCity, curren
               category: currentCategory === cat.slug ? undefined : cat.slug,
               city: currentCity,
             })}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+            className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
               currentCategory === cat.slug
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-muted text-muted-foreground hover:text-foreground'
@@ -81,12 +81,12 @@ export function SearchFilters({ categories, currentCategory, currentCity, curren
         ))}
       </div>
 
-      {/* City filters */}
-      <div className="flex flex-wrap gap-1.5">
+      {/* City filters — horizontal scroll on mobile */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible">
         <button
           type="button"
           onClick={() => updateFilters({ q: currentQuery, category: currentCategory })}
-          className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+          className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
             !currentCity
               ? 'bg-secondary text-secondary-foreground'
               : 'bg-muted text-muted-foreground hover:text-foreground'
@@ -103,7 +103,7 @@ export function SearchFilters({ categories, currentCategory, currentCity, curren
               category: currentCategory,
               city: currentCity === city ? undefined : city,
             })}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+            className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
               currentCity === city
                 ? 'bg-secondary text-secondary-foreground'
                 : 'bg-muted text-muted-foreground hover:text-foreground'

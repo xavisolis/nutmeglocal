@@ -56,22 +56,22 @@ export function Header() {
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px]">
             <SheetTitle className="sr-only">Navigation</SheetTitle>
-            <nav className="flex flex-col gap-4 mt-8">
+            <nav className="flex flex-col gap-1 mt-8">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className={`text-lg font-medium transition-colors hover:text-primary ${
+                  className={`py-3 px-3 rounded-lg text-lg font-medium transition-colors hover:text-primary hover:bg-muted ${
                     pathname === link.href
-                      ? 'text-primary'
+                      ? 'text-primary bg-primary/5'
                       : 'text-foreground'
                   }`}
                 >
                   {link.label}
                 </Link>
               ))}
-              <Button asChild className="mt-2">
+              <Button asChild className="mt-4">
                 <Link href="/claim" onClick={() => setOpen(false)}>
                   Claim Your Business
                 </Link>

@@ -25,12 +25,16 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero — search bar IS the product */}
-      <section className="relative py-20 md:py-32 px-4 overflow-hidden">
-        {/* Subtle radial gradient for depth */}
+      <section className="relative pt-14 pb-16 md:py-32 px-4 overflow-hidden">
+        {/* Layered gradient for depth */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse 60% 50% at 50% 40%, oklch(0.45 0.12 145 / 0.06) 0%, transparent 70%)',
+            background: `
+              radial-gradient(ellipse 80% 60% at 50% 30%, oklch(0.45 0.12 145 / 0.07) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 40% at 20% 80%, oklch(0.6 0.1 55 / 0.04) 0%, transparent 50%),
+              radial-gradient(ellipse 40% 40% at 80% 70%, oklch(0.45 0.12 145 / 0.03) 0%, transparent 50%)
+            `,
           }}
         />
         <div className="container mx-auto max-w-3xl text-center relative z-10">
@@ -39,7 +43,7 @@ export default function HomePage() {
             Find local businesses you can trust
           </h1>
           <p className="text-muted-foreground mb-10 max-w-lg mx-auto text-base md:text-lg leading-relaxed">
-            Your free directory for Danbury, Bethel, Brookfield, Ridgefield, New Fairfield, and more.
+            From Main Street Danbury to the shops along Route 7 — find the businesses your neighbors trust.
           </p>
 
           {/* Search bar */}
@@ -50,8 +54,8 @@ export default function HomePage() {
               id="hero-search"
               name="q"
               type="text"
-              placeholder="Try 'plumber in Bethel' or 'Italian restaurant'..."
-              className="w-full h-14 md:h-16 pl-13 md:pl-15 pr-28 md:pr-34 rounded-full border-2 border-border bg-card text-base md:text-lg shadow-xl shadow-black/8 outline-none focus:border-primary focus:shadow-[0_0_0_4px_oklch(0.45_0.12_145_/_0.12),0_20px_40px_-12px_oklch(0_0_0_/_0.1)] transition-all duration-300 placeholder:text-muted-foreground/60"
+              placeholder="Search businesses..."
+              className="w-full h-14 md:h-16 pl-13 md:pl-15 pr-28 md:pr-34 rounded-full border-2 border-border bg-card text-base md:text-lg shadow-[0_4px_20px_-4px_oklch(0_0_0/0.08)] outline-none focus:border-primary focus:shadow-[0_0_0_4px_oklch(0.45_0.12_145_/_0.12),0_20px_40px_-12px_oklch(0_0_0_/_0.1)] transition-all duration-300 placeholder:text-muted-foreground/60"
             />
             <Button type="submit" className="absolute right-1.5 md:right-2 top-1/2 -translate-y-1/2 rounded-full h-10 md:h-12 px-5 md:px-7 text-sm md:text-base">
               Search
@@ -59,52 +63,58 @@ export default function HomePage() {
           </form>
 
           {/* Popular categories as chips */}
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
             {popularSearches.map((term) => (
               <Link
                 key={term}
                 href={`/directory?q=${encodeURIComponent(term)}`}
-                className="rounded-full border px-3.5 py-1.5 text-sm text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-200"
+                className="rounded-full border px-4 py-2.5 md:px-3.5 md:py-1.5 text-sm text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-200"
               >
                 {term}
               </Link>
             ))}
           </div>
+
+          <p className="text-xs text-muted-foreground/50">
+            Serving Danbury, Bethel, Brookfield, New Fairfield, Newtown, Ridgefield, Redding, and Sherman
+          </p>
         </div>
       </section>
+
+      {/* Section separator */}
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       {/* Why NutmegLocal */}
       <section className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-4">Support Local. Shop Local.</h2>
           <p className="text-muted-foreground mb-14 max-w-2xl mx-auto leading-relaxed">
-            Every dollar spent locally keeps our community thriving. NutmegLocal makes it easy
-            to find the businesses right in your backyard.
+            Greater Danbury has hundreds of locally-owned businesses. Most of them don&apos;t show up on Google. We&apos;re fixing that.
           </p>
           <div className="grid sm:grid-cols-3 gap-10">
             <div className="space-y-3">
-              <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Search className="h-5 w-5 text-primary" />
+              <div className="mx-auto w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Search className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-base">Easy to Find</h3>
+              <h3 className="font-[family-name:var(--font-display)] text-lg">Easy to Find</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Search by name, category, or location. Find exactly what you need.
               </p>
             </div>
             <div className="space-y-3">
-              <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Store className="h-5 w-5 text-primary" />
+              <div className="mx-auto w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Store className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-base">Claim Your Business</h3>
+              <h3 className="font-[family-name:var(--font-display)] text-lg">Claim Your Business</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Business owners can claim and update their listing for free.
               </p>
             </div>
             <div className="space-y-3">
-              <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <MapPin className="h-5 w-5 text-primary" />
+              <div className="mx-auto w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <MapPin className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-base">Map & Directions</h3>
+              <h3 className="font-[family-name:var(--font-display)] text-lg">Map & Directions</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Interactive maps to help you find businesses near you.
               </p>
@@ -113,20 +123,23 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Section separator */}
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
       {/* Category Preview */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-3">Browse by Category</h2>
+          <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-3">What are you looking for?</h2>
           <p className="text-muted-foreground mb-10">Explore businesses across Greater Danbury</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
             {previewCategories.map((cat) => (
               <Link
                 key={cat.name}
                 href={`/directory?category=${cat.slug}`}
-                className="group rounded-xl border bg-card p-5 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5 transition-all duration-200"
+                className="group rounded-xl border bg-card p-4 md:p-5 shadow-[0_1px_3px_0_oklch(0_0_0/0.04)] hover:border-primary/50 hover:shadow-[0_4px_12px_-2px_oklch(0_0_0/0.08)] transition-all duration-200"
               >
-                <div className="mx-auto w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center mb-3 transition-colors duration-200">
-                  <cat.icon className="h-5 w-5 text-primary" />
+                <div className="mx-auto w-11 h-11 md:w-12 md:h-12 rounded-xl bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground flex items-center justify-center mb-3 transition-all duration-200">
+                  <cat.icon className="h-5 w-5 text-primary group-hover:text-primary-foreground transition-colors duration-200" />
                 </div>
                 <p className="text-sm font-medium group-hover:text-primary transition-colors duration-200">{cat.name}</p>
               </Link>
@@ -134,6 +147,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Section separator */}
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       {/* Early Access */}
       <section className="py-20 px-4 bg-muted/30">

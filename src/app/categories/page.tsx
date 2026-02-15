@@ -21,18 +21,18 @@ export default async function CategoriesPage() {
         <h1 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-2">Browse by Category</h1>
         <p className="text-muted-foreground">Find businesses by type across Greater Danbury</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {(categories || []).map((cat: any) => {
           const count = cat.businesses?.[0]?.count || 0;
           return (
             <Link
               key={cat.id}
               href={`/categories/${cat.slug}`}
-              className="group flex items-center justify-between rounded-xl border bg-card px-5 py-4 hover:border-primary/50 hover:shadow-md hover:shadow-primary/5 transition-all duration-200"
+              className="group flex items-center justify-between rounded-xl border bg-card px-5 py-4 shadow-[0_1px_3px_0_oklch(0_0_0/0.04)] hover:border-primary/50 hover:shadow-[0_4px_12px_-2px_oklch(0_0_0/0.08)] transition-all duration-200"
             >
               <div>
-                <h2 className="font-semibold text-sm group-hover:text-primary transition-colors">{cat.name}</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <h2 className="font-semibold text-base group-hover:text-primary transition-colors">{cat.name}</h2>
+                <p className="text-sm text-muted-foreground mt-0.5">
                   {count} {count === 1 ? 'business' : 'businesses'}
                 </p>
               </div>

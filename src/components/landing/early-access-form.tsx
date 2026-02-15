@@ -63,7 +63,7 @@ export function EarlyAccessForm() {
         <Button
           type="button"
           variant={type === 'consumer' ? 'default' : 'outline'}
-          className="flex-1"
+          className="flex-1 active:scale-[0.97]"
           onClick={() => setType('consumer')}
         >
           I&apos;m a local
@@ -71,7 +71,7 @@ export function EarlyAccessForm() {
         <Button
           type="button"
           variant={type === 'business' ? 'default' : 'outline'}
-          className="flex-1"
+          className="flex-1 active:scale-[0.97]"
           onClick={() => setType('business')}
         >
           I own a business

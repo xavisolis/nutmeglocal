@@ -43,3 +43,11 @@
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-display: var(--font-display), 'Georgia', serif;
 }
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

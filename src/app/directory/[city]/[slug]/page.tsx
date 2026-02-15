@@ -86,7 +86,7 @@ export default async function BusinessPage({ params }: PageProps) {
       <BusinessPageTracker businessId={biz.id} businessName={biz.name} />
 
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6">
+      <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
         <Link href="/directory" className="hover:text-foreground">Directory</Link>
         <ChevronRight className="h-3 w-3" />
         <Link href={`/directory?city=${biz.city}`} className="hover:text-foreground">{biz.city}</Link>
@@ -94,12 +94,31 @@ export default async function BusinessPage({ params }: PageProps) {
         <span className="text-foreground">{biz.name}</span>
       </nav>
 
+      {/* Context bar */}
+      <div className="flex items-center gap-3 mb-8 py-3 border-b border-border/50">
+        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground">
+          <MapPin className="h-3.5 w-3.5 text-primary" />{biz.city}, CT
+        </span>
+        <span className="h-1 w-1 rounded-full bg-border" />
+        {biz.category && (
+          <>
+            <Link href={`/directory?category=${biz.category.slug}`} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              {biz.category.name}
+            </Link>
+            <span className="h-1 w-1 rounded-full bg-border" />
+          </>
+        )}
+        <Link href={`/directory?city=${biz.city}`} className="text-sm text-primary hover:underline">
+          See all in {biz.city}
+        </Link>
+      </div>
+
       <div className="grid md:grid-cols-3 gap-8">
         {/* Main content */}
         <div className="md:col-span-2 space-y-6">
           <div>
             <div className="flex items-start gap-3 mb-2">
-              <h1 className="text-3xl font-bold">{biz.name}</h1>
+              <h1 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl tracking-tight">{biz.name}</h1>
               {biz.featured && <Badge>Featured</Badge>}
             </div>
             {biz.category && <Badge variant="outline">{biz.category.name}</Badge>}

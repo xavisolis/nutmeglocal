@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
-import { Card, CardContent } from '@/components/ui/card';
+import { ChevronRight } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Categories',
@@ -16,21 +16,30 @@ export default async function CategoriesPage() {
     .order('name');
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Browse by Category</h1>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {(categories || []).map((cat: any) => (
-          <Link key={cat.id} href={`/categories/${cat.slug}`}>
-            <Card className="hover:border-primary/50 transition-colors h-full">
-              <CardContent className="p-6 text-center">
-                <h2 className="font-semibold mb-1">{cat.name}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {cat.businesses?.[0]?.count || 0} businesses
+    <div className="container mx-auto px-4 py-10 md:py-14">
+      <div className="mb-10">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-2">Browse by Category</h1>
+        <p className="text-muted-foreground">Find businesses by type across Greater Danbury</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {(categories || []).map((cat: any) => {
+          const count = cat.businesses?.[0]?.count || 0;
+          return (
+            <Link
+              key={cat.id}
+              href={`/categories/${cat.slug}`}
+              className="group flex items-center justify-between rounded-xl border bg-card px-5 py-4 hover:border-primary/50 hover:shadow-md hover:shadow-primary/5 transition-all duration-200"
+            >
+              <div>
+                <h2 className="font-semibold text-sm group-hover:text-primary transition-colors">{cat.name}</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {count} {count === 1 ? 'business' : 'businesses'}
                 </p>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

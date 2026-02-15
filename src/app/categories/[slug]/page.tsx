@@ -35,18 +35,23 @@ export default async function CategoryPage({ params }: PageProps) {
     .order('name');
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">{category.name}</h1>
-      <p className="text-muted-foreground mb-8">
-        {(businesses || []).length} businesses in Greater Danbury, CT
-      </p>
+    <div className="container mx-auto px-4 py-10 md:py-14">
+      <div className="mb-8">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-2">{category.name}</h1>
+        <p className="text-muted-foreground">
+          {(businesses || []).length} {(businesses || []).length === 1 ? 'business' : 'businesses'} in Greater Danbury, CT
+        </p>
+      </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {(businesses || []).map((biz: Business) => (
           <BusinessCard key={biz.id} business={biz} />
         ))}
       </div>
       {(!businesses || businesses.length === 0) && (
-        <p className="text-center text-muted-foreground py-12">No businesses in this category yet.</p>
+        <div className="text-center py-16">
+          <p className="text-lg text-muted-foreground">No businesses in this category yet.</p>
+          <p className="text-sm text-muted-foreground mt-1">Check back soon as we grow our directory.</p>
+        </div>
       )}
     </div>
   );

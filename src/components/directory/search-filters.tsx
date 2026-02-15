@@ -3,9 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useCallback } from 'react';
 import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { GREATER_DANBURY_CITIES } from '@/lib/constants';
 import type { Category } from '@/types';
 
@@ -36,64 +34,83 @@ export function SearchFilters({ categories, currentCategory, currentCity, curren
 
   return (
     <div className="space-y-4">
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search businesses..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Button type="submit">Search</Button>
+      {/* Search */}
+      <form onSubmit={handleSearch} className="relative max-w-2xl">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground pointer-events-none" />
+        <input
+          placeholder="Search businesses..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full h-12 pl-11 pr-24 rounded-full border-2 border-border bg-card text-sm shadow-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/60"
+        />
+        <Button type="submit" size="sm" className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full px-5">
+          Search
+        </Button>
       </form>
 
-      <div className="flex flex-wrap gap-2">
-        <Badge
-          variant={!currentCategory ? 'default' : 'outline'}
-          className="cursor-pointer"
+      {/* Category filters */}
+      <div className="flex flex-wrap gap-1.5">
+        <button
+          type="button"
           onClick={() => updateFilters({ q: currentQuery, city: currentCity })}
+          className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+            !currentCategory
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:text-foreground'
+          }`}
         >
           All
-        </Badge>
+        </button>
         {categories.map((cat) => (
-          <Badge
+          <button
+            type="button"
             key={cat.id}
-            variant={currentCategory === cat.slug ? 'default' : 'outline'}
-            className="cursor-pointer"
             onClick={() => updateFilters({
               q: currentQuery,
               category: currentCategory === cat.slug ? undefined : cat.slug,
               city: currentCity,
             })}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+              currentCategory === cat.slug
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground hover:text-foreground'
+            }`}
           >
             {cat.name}
-          </Badge>
+          </button>
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Badge
-          variant={!currentCity ? 'secondary' : 'outline'}
-          className="cursor-pointer"
+      {/* City filters */}
+      <div className="flex flex-wrap gap-1.5">
+        <button
+          type="button"
           onClick={() => updateFilters({ q: currentQuery, category: currentCategory })}
+          className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+            !currentCity
+              ? 'bg-secondary text-secondary-foreground'
+              : 'bg-muted text-muted-foreground hover:text-foreground'
+          }`}
         >
           All Cities
-        </Badge>
+        </button>
         {GREATER_DANBURY_CITIES.map((city) => (
-          <Badge
+          <button
+            type="button"
             key={city}
-            variant={currentCity === city ? 'secondary' : 'outline'}
-            className="cursor-pointer"
             onClick={() => updateFilters({
               q: currentQuery,
               category: currentCategory,
               city: currentCity === city ? undefined : city,
             })}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+              currentCity === city
+                ? 'bg-secondary text-secondary-foreground'
+                : 'bg-muted text-muted-foreground hover:text-foreground'
+            }`}
           >
             {city}
-          </Badge>
+          </button>
         ))}
       </div>
     </div>

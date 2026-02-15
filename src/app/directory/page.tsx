@@ -44,8 +44,11 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
   const { data: businesses } = await query;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Business Directory</h1>
+    <div className="container mx-auto px-4 py-10 md:py-14">
+      <div className="mb-8">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-2">Business Directory</h1>
+        <p className="text-muted-foreground">Discover local businesses across Greater Danbury</p>
+      </div>
 
       <Suspense>
         <SearchFilters

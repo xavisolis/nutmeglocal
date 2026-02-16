@@ -1,9 +1,16 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState, useCallback } from 'react';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { GREATER_DANBURY_CITIES } from '@/lib/constants';
 import type { Category } from '@/types';
 
@@ -12,9 +19,10 @@ interface SearchFiltersProps {
   currentCategory?: string;
   currentCity?: string;
   currentQuery?: string;
+  hideDropdowns?: boolean;
 }
 
-export function SearchFilters({ categories, currentCategory, currentCity, currentQuery }: SearchFiltersProps) {
+export function SearchFilters({ categories, currentCategory, currentCity, currentQuery, hideDropdowns }: SearchFiltersProps) {
   const router = useRouter();
   const [query, setQuery] = useState(currentQuery || '');
 
@@ -32,8 +40,10 @@ export function SearchFilters({ categories, currentCategory, currentCity, curren
     updateFilters({ q: query || undefined, category: currentCategory, city: currentCity });
   }
 
+  const hasFilters = currentCategory || currentCity || currentQuery;
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Search */}
       <form onSubmit={handleSearch} className="relative max-w-2xl">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground pointer-events-none" />
@@ -48,71 +58,68 @@ export function SearchFilters({ categories, currentCategory, currentCity, curren
         </Button>
       </form>
 
-      {/* Category filters — horizontal scroll on mobile */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible">
-        <button
-          type="button"
-          onClick={() => updateFilters({ q: currentQuery, city: currentCity })}
-          className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
-            !currentCategory
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          All
-        </button>
-        {categories.map((cat) => (
-          <button
-            type="button"
-            key={cat.id}
-            onClick={() => updateFilters({
+      {/* Filter row */}
+      {!hideDropdowns && <div className="flex items-center gap-2 flex-wrap">
+        <Select
+          value={currentCategory || 'all'}
+          onValueChange={(val) =>
+            updateFilters({
               q: currentQuery,
-              category: currentCategory === cat.slug ? undefined : cat.slug,
+              category: val === 'all' ? undefined : val,
               city: currentCity,
-            })}
-            className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
-              currentCategory === cat.slug
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {cat.name}
-          </button>
-        ))}
-      </div>
-
-      {/* City filters — horizontal scroll on mobile */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible">
-        <button
-          type="button"
-          onClick={() => updateFilters({ q: currentQuery, category: currentCategory })}
-          className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
-            !currentCity
-              ? 'bg-secondary text-secondary-foreground'
-              : 'bg-muted text-muted-foreground hover:text-foreground'
-          }`}
+            })
+          }
         >
-          All Cities
-        </button>
-        {GREATER_DANBURY_CITIES.map((city) => (
-          <button
-            type="button"
-            key={city}
-            onClick={() => updateFilters({
+          <SelectTrigger className="h-10 md:h-9 rounded-full px-4 text-xs font-medium min-w-[140px]">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent position="popper" className="max-h-[min(320px,var(--radix-select-content-available-height))]">
+            <SelectItem value="all">All Categories</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat.id} value={cat.slug}>
+                {cat.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={currentCity || 'all'}
+          onValueChange={(val) =>
+            updateFilters({
               q: currentQuery,
               category: currentCategory,
-              city: currentCity === city ? undefined : city,
-            })}
-            className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
-              currentCity === city
-                ? 'bg-secondary text-secondary-foreground'
-                : 'bg-muted text-muted-foreground hover:text-foreground'
-            }`}
+              city: val === 'all' ? undefined : val,
+            })
+          }
+        >
+          <SelectTrigger className="h-10 md:h-9 rounded-full px-4 text-xs font-medium min-w-[130px]">
+            <SelectValue placeholder="All Towns" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Towns</SelectItem>
+            {GREATER_DANBURY_CITIES.map((city) => (
+              <SelectItem key={city} value={city}>
+                {city}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery('');
+              updateFilters({});
+            }}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
           >
-            {city}
+            <X className="h-3 w-3" />
+            Clear filters
           </button>
-        ))}
-      </div>
+        )}
+      </div>}
     </div>
   );
 }

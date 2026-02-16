@@ -1,14 +1,15 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Globe, Clock, ChevronRight } from 'lucide-react';
+import { MapPin, Phone, Mail, Globe, Clock, ChevronRight, BadgeCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { DAY_ORDER, DAY_LABELS, SITE_NAME } from '@/lib/constants';
-import { BusinessPageTracker } from './tracker';
+import { DAY_ORDER, DAY_LABELS, SITE_NAME, SITE_URL } from '@/lib/constants';
+import { BusinessPageTracker, TrackedLink } from './tracker';
 import { MiniMap } from '@/components/directory/mini-map';
 import type { Business } from '@/types';
 
@@ -21,22 +22,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const supabase = await createClient();
   const { data: business } = await supabase
     .from('businesses')
-    .select('*, category:categories(*)')
+    .select('*, category:categories(*), subcategory:subcategories(*)')
     .eq('slug', slug)
     .eq('active', true)
     .single();
 
   if (!business) return { title: 'Not Found' };
 
+  const citySlug = business.city.toLowerCase().replace(/\s+/g, '-');
+  const canonicalPath = `/directory/${citySlug}/${business.slug}`;
+  const description = business.description
+    || `${business.name} in ${business.city}, CT — hours, location, contact info on ${SITE_NAME}.`;
+
   return {
     title: `${business.name} — ${business.city}, CT`,
-    description: business.description || `${business.name} in ${business.city}, CT`,
+    description,
+    alternates: { canonical: canonicalPath },
     openGraph: {
       title: `${business.name} | ${SITE_NAME}`,
-      description: business.description || `${business.name} in ${business.city}, CT`,
+      description,
     },
     other: {
       'geo.position': `${business.latitude};${business.longitude}`,
+      'geo.placename': `${business.city}, CT`,
     },
   };
 }
@@ -47,7 +55,7 @@ export default async function BusinessPage({ params }: PageProps) {
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('*, category:categories(*)')
+    .select('*, category:categories(*), subcategory:subcategories(*)')
     .eq('slug', slug)
     .eq('active', true)
     .single();
@@ -55,6 +63,8 @@ export default async function BusinessPage({ params }: PageProps) {
   if (!business) notFound();
 
   const biz = business as Business;
+
+  const citySlug = biz.city.toLowerCase().replace(/\s+/g, '-');
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -67,14 +77,51 @@ export default async function BusinessPage({ params }: PageProps) {
       addressLocality: biz.city,
       addressRegion: biz.state,
       postalCode: biz.zip,
+      addressCountry: 'US',
     },
-    telephone: biz.phone,
-    url: biz.website,
+    ...(biz.phone && { telephone: biz.phone }),
+    ...(biz.email && { email: biz.email }),
+    ...(biz.website && { url: biz.website }),
     geo: {
       '@type': 'GeoCoordinates',
       latitude: biz.latitude,
       longitude: biz.longitude,
     },
+    ...(biz.photos && biz.photos.length > 0 && { image: biz.photos }),
+    ...(biz.category && { '@additionalType': biz.category.name }),
+    ...(biz.hours && {
+      openingHoursSpecification: DAY_ORDER
+        .filter((day) => biz.hours?.[day] && biz.hours[day] !== 'Closed')
+        .map((day) => {
+          const h = biz.hours![day];
+          const match = h?.match(/^(\d{1,2}:\d{2}\s*[APap][Mm])\s*-\s*(\d{1,2}:\d{2}\s*[APap][Mm])$/);
+          if (!match) return null;
+          const toTime = (s: string) => {
+            const [time, period] = s.trim().split(/\s+/);
+            const [hr, min] = time.split(':').map(Number);
+            const h24 = period.toLowerCase() === 'pm' && hr !== 12 ? hr + 12 : period.toLowerCase() === 'am' && hr === 12 ? 0 : hr;
+            return `${String(h24).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+          };
+          const dayMap: Record<string, string> = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
+          return {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: dayMap[day],
+            opens: toTime(match[1]),
+            closes: toTime(match[2]),
+          };
+        })
+        .filter(Boolean),
+    }),
+  };
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Directory', item: `${SITE_URL}/directory` },
+      { '@type': 'ListItem', position: 2, name: biz.city, item: `${SITE_URL}/directory/${citySlug}` },
+      { '@type': 'ListItem', position: 3, name: biz.name },
+    ],
   };
 
   return (
@@ -83,13 +130,14 @@ export default async function BusinessPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BusinessPageTracker businessId={biz.id} businessName={biz.name} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <Suspense><BusinessPageTracker businessId={biz.id} businessName={biz.name} claimedBy={biz.claimed_by || null} /></Suspense>
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
         <Link href="/directory" className="hover:text-foreground">Directory</Link>
         <ChevronRight className="h-3 w-3" />
-        <Link href={`/directory?city=${biz.city}`} className="hover:text-foreground">{biz.city}</Link>
+        <Link href={`/directory/${citySlug}`} className="hover:text-foreground">{biz.city}</Link>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground">{biz.name}</span>
       </nav>
@@ -102,13 +150,19 @@ export default async function BusinessPage({ params }: PageProps) {
         <span className="h-1 w-1 rounded-full bg-border" />
         {biz.category && (
           <>
-            <Link href={`/directory?category=${biz.category.slug}`} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link href={`/categories/${biz.category.slug}`} className="text-sm text-muted-foreground hover:text-primary transition-colors">
               {biz.category.name}
             </Link>
+            {biz.subcategory && (
+              <>
+                <span className="h-1 w-1 rounded-full bg-border" />
+                <span className="text-sm text-muted-foreground">{biz.subcategory.name}</span>
+              </>
+            )}
             <span className="h-1 w-1 rounded-full bg-border" />
           </>
         )}
-        <Link href={`/directory?city=${biz.city}`} className="text-sm text-primary hover:underline">
+        <Link href={`/directory/${citySlug}`} className="text-sm text-primary hover:underline">
           See all in {biz.city}
         </Link>
       </div>
@@ -119,9 +173,17 @@ export default async function BusinessPage({ params }: PageProps) {
           <div>
             <div className="flex items-start gap-3 mb-2">
               <h1 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl tracking-tight">{biz.name}</h1>
+              {biz.claimed && (
+                <span className="inline-flex items-center gap-1 shrink-0 mt-2 text-xs font-medium text-primary">
+                  <BadgeCheck className="h-4 w-4" /> Verified
+                </span>
+              )}
               {biz.featured && <Badge>Featured</Badge>}
             </div>
-            {biz.category && <Badge variant="outline">{biz.category.name}</Badge>}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {biz.category && <Badge variant="outline">{biz.category.name}</Badge>}
+              {biz.subcategory && <Badge variant="secondary">{biz.subcategory.name}</Badge>}
+            </div>
           </div>
 
           {biz.description && (
@@ -176,27 +238,27 @@ export default async function BusinessPage({ params }: PageProps) {
               {biz.phone && (
                 <>
                   <Separator />
-                  <a href={`tel:${biz.phone}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
+                  <TrackedLink businessId={biz.id} businessName={biz.name} eventType="phone_click" href={`tel:${biz.phone}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
                     <Phone className="h-4 w-4" /> {biz.phone}
-                  </a>
+                  </TrackedLink>
                 </>
               )}
 
               {biz.email && (
                 <>
                   <Separator />
-                  <a href={`mailto:${biz.email}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
+                  <TrackedLink businessId={biz.id} businessName={biz.name} eventType="email_click" href={`mailto:${biz.email}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
                     <Mail className="h-4 w-4" /> {biz.email}
-                  </a>
+                  </TrackedLink>
                 </>
               )}
 
               {biz.website && (
                 <>
                   <Separator />
-                  <a href={biz.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                  <TrackedLink businessId={biz.id} businessName={biz.name} eventType="website_click" href={biz.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
                     <Globe className="h-4 w-4" /> Website
-                  </a>
+                  </TrackedLink>
                 </>
               )}
             </CardContent>

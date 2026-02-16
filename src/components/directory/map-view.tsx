@@ -5,6 +5,10 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import type { Business } from '@/types';
 import { DANBURY_CENTER } from '@/lib/constants';
 
+function esc(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 interface MapViewProps {
   businesses: Business[];
 }
@@ -29,14 +33,17 @@ export function MapView({ businesses }: MapViewProps) {
 
       map.addControl(new mapboxgl.default.NavigationControl(), 'top-right');
 
-      businesses.forEach((biz) => {
+      // Only show businesses with real street addresses on the map
+      const mappable = businesses.filter((b) => !b.address.match(/^[A-Z][a-z].*,\s*CT\s+\d/));
+
+      mappable.forEach((biz) => {
         const citySlug = biz.city.toLowerCase().replace(/\s+/g, '-');
         const popup = new mapboxgl.default.Popup({ offset: 25 }).setHTML(
           `<div class="p-2">
-            <strong>${biz.name}</strong><br/>
-            <span class="text-xs text-gray-600">${biz.category?.name || ''}</span><br/>
-            <span class="text-xs">${biz.address}, ${biz.city}</span><br/>
-            <a href="/directory/${citySlug}/${biz.slug}" class="text-xs text-blue-600 hover:underline font-medium">View Profile →</a>
+            <strong>${esc(biz.name)}</strong><br/>
+            <span class="text-xs text-gray-600">${esc(biz.category?.name || '')}</span><br/>
+            <span class="text-xs">${esc(biz.address)}, ${esc(biz.city)}</span><br/>
+            <a href="/directory/${encodeURIComponent(citySlug)}/${encodeURIComponent(biz.slug)}?ref=map" class="text-xs text-blue-600 hover:underline font-medium">View Profile →</a>
           </div>`
         );
 

@@ -69,7 +69,6 @@ function ClaimPageInner() {
       .select('*, category:categories(*)')
       .ilike('name', `%${query}%`)
       .eq('active', true)
-      .eq('claimed', false)
       .limit(10);
     setResults((data || []) as Business[]);
     setLoading(false);
@@ -131,7 +130,7 @@ function ClaimPageInner() {
     <div className="container mx-auto px-4 py-8 max-w-lg">
       <h1 className="text-3xl font-bold mb-2">Claim Your Business</h1>
       <p className="text-muted-foreground mb-8">
-        Take control of your business listing — it&apos;s free!
+        Take control of your business listing — it&apos;s free.
       </p>
 
       {step === 'search' && (
@@ -158,7 +157,12 @@ function ClaimPageInner() {
                     onClick={() => selectBusiness(biz)}
                     className="w-full text-left p-4 rounded-lg border hover:border-primary/50 hover:bg-muted/50 transition-colors active:scale-[0.98]"
                   >
-                    <p className="font-medium">{biz.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{biz.name}</p>
+                      {biz.claimed && (
+                        <span className="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium">Already claimed</span>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground mt-0.5">{biz.address}, {biz.city}</p>
                   </button>
                 ))}
@@ -198,25 +202,37 @@ function ClaimPageInner() {
       {step === 'verify' && (
         <Card>
           <CardHeader>
-            <CardTitle>Verify Ownership</CardTitle>
+            <CardTitle>{selected?.claimed ? 'Dispute Ownership' : 'Verify Ownership'}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
               Claiming: <strong>{selected?.name}</strong>
             </p>
+            {selected?.claimed && (
+              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4 text-sm">
+                <p className="font-medium text-amber-800 dark:text-amber-300">This business has already been claimed.</p>
+                <p className="text-amber-700 dark:text-amber-400 mt-1">
+                  If you&apos;re the real owner, submit your proof below and we&apos;ll review the dispute.
+                </p>
+              </div>
+            )}
             <form onSubmit={handleClaim} className="space-y-4">
               <div>
-                <Label>How can you prove ownership?</Label>
+                <Label>{selected?.claimed ? 'Why are you the real owner?' : 'How can you prove ownership?'}</Label>
                 <Textarea
-                  placeholder="e.g., I'm the owner John Smith, my phone number is on the listing, I can verify via email..."
+                  placeholder={selected?.claimed
+                    ? "Explain why you're the rightful owner. Include your name, role, and any verifiable details (phone on the listing, business license, etc.)"
+                    : "e.g., I'm the owner John Smith, my phone number is on the listing, I can verify via email..."
+                  }
                   value={proof}
                   onChange={(e) => setProof(e.target.value)}
                   rows={4}
+                  required={!!selected?.claimed}
                 />
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Submitting...' : 'Submit Claim'}
+                {loading ? 'Submitting...' : selected?.claimed ? 'Submit Dispute' : 'Submit Claim'}
               </Button>
             </form>
           </CardContent>

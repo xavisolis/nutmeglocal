@@ -51,11 +51,34 @@ export default function AdminPage() {
   async function handleClaimAction(claimId: string, businessId: string, userId: string, action: 'approved' | 'rejected') {
     await supabase.from('claims').update({ status: action, reviewed_at: new Date().toISOString() }).eq('id', claimId);
     if (action === 'approved') {
+      // Transfer ownership (works for both new claims and disputes)
       await supabase.from('businesses').update({ claimed: true, claimed_by: userId }).eq('id', businessId);
+      // Reject any other pending claims for this business
+      await supabase.from('claims')
+        .update({ status: 'rejected', reviewed_at: new Date().toISOString() })
+        .eq('business_id', businessId)
+        .eq('status', 'pending')
+        .neq('id', claimId);
     }
-    setClaims(claims.map((c) =>
-      c.id === claimId ? { ...c, status: action, reviewed_at: new Date().toISOString() } : c
-    ));
+    setClaims(claims.map((c) => {
+      if (c.id === claimId) return { ...c, status: action, reviewed_at: new Date().toISOString() };
+      // Also update other pending claims for same business if we approved one
+      if (action === 'approved' && c.business_id === businessId && c.status === 'pending') {
+        return { ...c, status: 'rejected', reviewed_at: new Date().toISOString() };
+      }
+      return c;
+    }));
+
+    // Send notification email
+    try {
+      await fetch('/api/email/claim-decision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ claim_id: claimId, action }),
+      });
+    } catch {
+      // Email failure shouldn't block the action
+    }
   }
 
   async function toggleFeatured(biz: Business) {
@@ -151,24 +174,48 @@ export default function AdminPage() {
         </TabsContent>
 
         <TabsContent value="claims" className="mt-4 space-y-4">
+          {claims.length === 0 && (
+            <p className="text-muted-foreground text-sm py-4">No claims yet.</p>
+          )}
           {claims.map((claim) => (
-            <Card key={claim.id}>
+            <Card key={claim.id} className={claim.status === 'pending' ? 'border-amber-300' : ''}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <p className="font-medium">{claim.business?.name}</p>
                     <p className="text-sm text-muted-foreground">
                       {new Date(claim.created_at).toLocaleDateString()}
+                      {claim.user_email && <span className="ml-2">{claim.user_email}</span>}
+                      {!claim.user_email && claim.user_id && <span className="ml-2 font-mono text-xs">{claim.user_id.slice(0, 8)}…</span>}
                     </p>
                   </div>
-                  <Badge variant={
-                    claim.status === 'approved' ? 'default' :
-                    claim.status === 'rejected' ? 'destructive' : 'secondary'
-                  }>
-                    {claim.status}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    {claim.business?.claimed && claim.status === 'pending' && (
+                      <Badge variant="outline" className="border-amber-400 text-amber-700">Dispute</Badge>
+                    )}
+                    <Badge variant={
+                      claim.status === 'approved' ? 'default' :
+                      claim.status === 'rejected' ? 'destructive' : 'secondary'
+                    }>
+                      {claim.status}
+                    </Badge>
+                  </div>
                 </div>
-                {claim.proof && <p className="text-sm mb-3">Proof: {claim.proof}</p>}
+                {/* Business contact info for cross-checking */}
+                {claim.business && (
+                  <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2 mb-3 space-y-0.5">
+                    <p><span className="font-medium">Address:</span> {claim.business.address}, {claim.business.city}</p>
+                    {claim.business.phone && <p><span className="font-medium">Phone:</span> {claim.business.phone}</p>}
+                    {claim.business.email && <p><span className="font-medium">Email:</span> {claim.business.email}</p>}
+                    {claim.business.website && <p><span className="font-medium">Web:</span> {claim.business.website}</p>}
+                  </div>
+                )}
+                {claim.proof && (
+                  <div className="text-sm mb-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded p-2">
+                    <span className="font-medium text-xs text-amber-700 dark:text-amber-400">Proof:</span>
+                    <p className="mt-0.5">{claim.proof}</p>
+                  </div>
+                )}
                 {claim.status === 'pending' && (
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => handleClaimAction(claim.id, claim.business_id, claim.user_id, 'approved')}>

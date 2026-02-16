@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/s
 const navLinks = [
   { href: '/directory', label: 'Directory' },
   { href: '/categories', label: 'Categories' },
+  { href: '/guides', label: 'Guides' },
 ];
 
 export function Header() {

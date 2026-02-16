@@ -18,7 +18,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm leading-relaxed max-w-xs opacity-70">
-              Your free directory of local businesses in the Greater
+              Your local directory of businesses in the Greater
               Danbury, CT area. Supporting local since day one.
             </p>
             <p className="text-xs opacity-40 mt-4">Built in Connecticut, for Connecticut.</p>
@@ -31,7 +31,7 @@ export function Footer() {
               {GREATER_DANBURY_CITIES.map((city) => (
                 <li key={city}>
                   <Link
-                    href={`/directory?city=${city}`}
+                    href={`/directory/${city.toLowerCase().replace(/\s+/g, '-')}`}
                     className="opacity-70 hover:opacity-100 hover:text-white transition-all inline-block py-1.5"
                   >
                     {city}
@@ -47,6 +47,7 @@ export function Footer() {
             <ul className="space-y-1 text-sm">
               <li><Link href="/directory" className="opacity-70 hover:opacity-100 hover:text-white transition-all inline-block py-1.5">Browse Directory</Link></li>
               <li><Link href="/categories" className="opacity-70 hover:opacity-100 hover:text-white transition-all inline-block py-1.5">Categories</Link></li>
+              <li><Link href="/guides" className="opacity-70 hover:opacity-100 hover:text-white transition-all inline-block py-1.5">Local Guides</Link></li>
             </ul>
           </div>
 

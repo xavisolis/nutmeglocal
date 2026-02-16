@@ -50,21 +50,76 @@ export async function sendClaimNotification(businessName: string, claimerEmail: 
   });
 }
 
+export async function sendClaimApproved(to: string, businessName: string) {
+  if (!resend) return { data: null, error: 'Resend not configured' };
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: `Your claim for ${businessName} has been approved!`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #3a7d44; padding: 24px; border-radius: 12px 12px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 24px;">NutmegLocal</h1>
+        </div>
+        <div style="padding: 24px; border: 1px solid #e5e5e5; border-top: none; border-radius: 0 0 12px 12px;">
+          <h2>You're verified!</h2>
+          <p>Great news — your claim for <strong>${businessName}</strong> has been approved. You now have full control of your listing.</p>
+          <p>Head to your dashboard to:</p>
+          <ul>
+            <li>Update your business hours and description</li>
+            <li>Add photos</li>
+            <li>Keep your contact info up to date</li>
+          </ul>
+          <p style="margin-top: 16px;">
+            <a href="https://nutmeglocal.com/dashboard" style="background: #3a7d44; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block;">Go to Dashboard</a>
+          </p>
+          <p style="color: #666; font-size: 14px; margin-top: 16px;">— The NutmegLocal Team</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
+export async function sendClaimRejected(to: string, businessName: string) {
+  if (!resend) return { data: null, error: 'Resend not configured' };
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: `Update on your claim for ${businessName}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #3a7d44; padding: 24px; border-radius: 12px 12px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 24px;">NutmegLocal</h1>
+        </div>
+        <div style="padding: 24px; border: 1px solid #e5e5e5; border-top: none; border-radius: 0 0 12px 12px;">
+          <h2>Claim update</h2>
+          <p>We reviewed your claim for <strong>${businessName}</strong> and unfortunately we weren't able to verify ownership at this time.</p>
+          <p>If you believe this is an error, you can submit a new claim with additional proof of ownership (business license, utility bill, etc.).</p>
+          <p style="margin-top: 16px;">
+            <a href="https://nutmeglocal.com/claim" style="background: #3a7d44; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block;">Try Again</a>
+          </p>
+          <p style="color: #666; font-size: 14px; margin-top: 16px;">— The NutmegLocal Team</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
 export async function sendEarlyAccessConfirmation(to: string, type: string) {
   if (!resend) return { data: null, error: 'Resend not configured' };
   return resend.emails.send({
     from: FROM,
     to,
-    subject: "You're on the NutmegLocal waitlist! 🌿",
+    subject: 'Welcome to the NutmegLocal newsletter!',
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #3a7d44; padding: 24px; border-radius: 12px 12px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">🌿 NutmegLocal</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">NutmegLocal</h1>
         </div>
         <div style="padding: 24px; border: 1px solid #e5e5e5; border-top: none; border-radius: 0 0 12px 12px;">
-          <h2>You're on the list!</h2>
-          <p>Thanks for signing up ${type === 'business' ? 'as a business owner' : 'as a local'}. We'll let you know as soon as NutmegLocal launches in Greater Danbury.</p>
-          <p>In the meantime, spread the word — the more locals who join, the better the directory!</p>
+          <h2>You're subscribed!</h2>
+          <p>Thanks for joining${type === 'business' ? ' as a business owner' : ''}. You'll get updates about new businesses, local happenings, and what's opening in Greater Danbury.</p>
+          <p>In the meantime, <a href="https://nutmeglocal.com/directory" style="color: #3a7d44;">browse the directory</a> and discover local businesses near you.</p>
           <p style="color: #666; font-size: 14px;">— The NutmegLocal Team</p>
         </div>
       </div>

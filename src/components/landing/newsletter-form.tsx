@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { CheckCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { posthog } from '@/lib/posthog';
 
-export function EarlyAccessForm() {
+export function NewsletterForm() {
   const [email, setEmail] = useState('');
   const [type, setType] = useState<'consumer' | 'business'>('consumer');
   const [businessName, setBusinessName] = useState('');
@@ -32,7 +33,7 @@ export function EarlyAccessForm() {
       }
 
       setSuccess(true);
-      posthog?.capture('early_access_signup', { type });
+      posthog?.capture('newsletter_signup', { type });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -43,10 +44,12 @@ export function EarlyAccessForm() {
   if (success) {
     return (
       <div className="rounded-xl border bg-card p-8 text-center">
-        <div className="text-4xl mb-3">🎉</div>
-        <h3 className="text-xl font-semibold mb-2">You&apos;re on the list!</h3>
-        <p className="text-muted-foreground">
-          We&apos;ll notify you when NutmegLocal launches. Thanks for supporting local!
+        <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <CheckCircle className="h-6 w-6 text-primary" />
+        </div>
+        <h3 className="font-[family-name:var(--font-display)] text-xl mb-2">You&apos;re subscribed!</h3>
+        <p className="text-muted-foreground text-sm">
+          We&apos;ll send you updates about new businesses and what&apos;s happening locally in Greater Danbury.
         </p>
       </div>
     );
@@ -55,8 +58,11 @@ export function EarlyAccessForm() {
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-6 md:p-8 space-y-4">
       <div className="text-center mb-2">
-        <h3 className="font-[family-name:var(--font-display)] text-2xl">Get Early Access</h3>
-        <p className="text-sm text-muted-foreground">Be the first to know when we launch</p>
+        <div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+          <Mail className="h-5 w-5 text-primary" />
+        </div>
+        <h3 className="font-[family-name:var(--font-display)] text-2xl">Stay in the Loop</h3>
+        <p className="text-sm text-muted-foreground">New businesses, local updates, and what&apos;s opening nearby</p>
       </div>
 
       <div className="flex gap-2">
@@ -66,7 +72,7 @@ export function EarlyAccessForm() {
           className="flex-1 active:scale-[0.97]"
           onClick={() => setType('consumer')}
         >
-          I&apos;m a local
+          Local resident
         </Button>
         <Button
           type="button"
@@ -74,7 +80,7 @@ export function EarlyAccessForm() {
           className="flex-1 active:scale-[0.97]"
           onClick={() => setType('business')}
         >
-          I own a business
+          Business owner
         </Button>
       </div>
 
@@ -105,7 +111,7 @@ export function EarlyAccessForm() {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Signing up...' : 'Join the Waitlist'}
+        {loading ? 'Subscribing...' : 'Subscribe'}
       </Button>
     </form>
   );

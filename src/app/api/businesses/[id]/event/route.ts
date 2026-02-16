@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 
+const VALID_EVENTS = ['profile_view', 'phone_click', 'website_click', 'email_click', 'directions_click', 'share_click', 'search_result_click'];
+
 const BOT_PATTERNS = [
   /bot/i, /crawl/i, /spider/i, /slurp/i, /facebookexternalhit/i,
   /Twitterbot/i, /LinkedInBot/i, /WhatsApp/i, /TelegramBot/i,
@@ -20,32 +22,26 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Bot filtering — bots don't count as views
+  // Bot filtering
   const ua = request.headers.get('user-agent');
   if (isBot(ua)) {
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }); // Silent discard
   }
 
   const { id } = await params;
-  const supabase = await createServiceClient();
+  const { event_type, referrer, search_term } = await request.json();
 
-  const { error } = await supabase.rpc('increment_view_count', { business_id: id });
-
-  if (error) {
-    // Fallback: manual increment if RPC doesn't exist
-    const { data: biz } = await supabase
-      .from('businesses')
-      .select('view_count')
-      .eq('id', id)
-      .single();
-
-    if (biz) {
-      await supabase
-        .from('businesses')
-        .update({ view_count: (biz.view_count || 0) + 1 })
-        .eq('id', id);
-    }
+  if (!VALID_EVENTS.includes(event_type)) {
+    return NextResponse.json({ error: 'Invalid event type' }, { status: 400 });
   }
+
+  const supabase = await createServiceClient();
+  await supabase.from('business_events').insert({
+    business_id: id,
+    event_type,
+    referrer: referrer || null,
+    search_term: search_term || null,
+  });
 
   return NextResponse.json({ success: true });
 }

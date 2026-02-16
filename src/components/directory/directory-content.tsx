@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Map, Grid3X3 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Map, Grid3X3, SearchX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BusinessCard } from '@/components/directory/business-card';
 import { MapView } from '@/components/directory/map-view';
@@ -13,6 +14,13 @@ interface DirectoryContentProps {
 
 export function DirectoryContent({ businesses }: DirectoryContentProps) {
   const [view, setView] = useState<'grid' | 'map'>('grid');
+  const searchParams = useSearchParams();
+
+  // Determine referrer source from current filters
+  const query = searchParams.get('q');
+  const category = searchParams.get('category');
+  const city = searchParams.get('city');
+  const refSource = query ? 'search' : category ? 'category' : city ? 'town' : 'browse';
 
   return (
     <div className="mt-6">
@@ -38,12 +46,17 @@ export function DirectoryContent({ businesses }: DirectoryContentProps) {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {businesses.length > 0 ? (
             businesses.map((biz) => (
-              <BusinessCard key={biz.id} business={biz} />
+              <BusinessCard key={biz.id} business={biz} refSource={refSource} searchTerm={query || undefined} />
             ))
           ) : (
-            <div className="col-span-full text-center py-12 text-muted-foreground">
-              <p className="text-lg">No businesses found</p>
-              <p className="text-sm">Try adjusting your search or filters</p>
+            <div className="col-span-full text-center py-16">
+              <div className="mx-auto w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                <SearchX className="h-7 w-7 text-muted-foreground" />
+              </div>
+              <p className="font-[family-name:var(--font-display)] text-xl mb-1">No results found</p>
+              <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                Try a different search term, or remove some filters to see more businesses.
+              </p>
             </div>
           )}
         </div>

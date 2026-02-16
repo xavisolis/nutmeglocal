@@ -6,12 +6,22 @@ export interface Category {
   created_at: string;
 }
 
+export interface Subcategory {
+  id: string;
+  category_id: string;
+  name: string;
+  slug: string;
+  display_order: number;
+  created_at: string;
+}
+
 export interface Business {
   id: string;
   name: string;
   slug: string;
   description: string | null;
   category_id: string;
+  subcategory_id: string | null;
   address: string;
   city: string;
   state: string;
@@ -32,12 +42,14 @@ export interface Business {
   view_count: number;
   updated_at: string;
   category?: Category;
+  subcategory?: Subcategory;
 }
 
 export interface Claim {
   id: string;
   business_id: string;
   user_id: string;
+  user_email: string | null;
   status: 'pending' | 'approved' | 'rejected';
   proof: string | null;
   created_at: string;
@@ -51,4 +63,19 @@ export interface EarlyAccess {
   business_name: string | null;
   type: 'consumer' | 'business';
   created_at: string;
+}
+
+export interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  body: string;
+  cover_image: string | null;
+  category: string;
+  published: boolean;
+  published_at: string | null;
+  author: string;
+  created_at: string;
+  updated_at: string;
 }

@@ -11,6 +11,7 @@ export const GREATER_DANBURY_CITIES = [
   'Danbury',
   'Bethel',
   'Brookfield',
+  'Kent',
   'New Fairfield',
   'New Milford',
   'Newtown',

@@ -1,12 +1,16 @@
 import Link from 'next/link';
+import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function NotFound() {
   return (
-    <div className="container mx-auto px-4 py-20 text-center">
-      <div className="text-8xl font-bold text-muted-foreground/30 mb-4">404</div>
-      <h1 className="text-3xl font-bold mb-2">Page not found</h1>
-      <p className="text-muted-foreground mb-8">
+    <div className="container mx-auto px-4 py-24 text-center">
+      <div className="mx-auto w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-5">
+        <MapPin className="h-7 w-7 text-muted-foreground" />
+      </div>
+      <p className="text-sm font-medium text-primary mb-3 tracking-wide uppercase">404</p>
+      <h1 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl mb-3">Page not found</h1>
+      <p className="text-muted-foreground mb-8 max-w-md mx-auto">
         The page you&apos;re looking for doesn&apos;t exist or has been moved.
       </p>
       <div className="flex gap-3 justify-center">
